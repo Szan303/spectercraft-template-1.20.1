@@ -10,8 +10,7 @@
       "DisableHotbarScrollMixin",
       "HotbarMixin",
       "LockSelectedSlotMixin",
-      "RemoveInventorySlotsMixin",
-      "ManualPickupMixin"
+      "RemoveInventorySlotsMixin"
     ],
 	"injectors": {
 		"defaultRequire": 1
