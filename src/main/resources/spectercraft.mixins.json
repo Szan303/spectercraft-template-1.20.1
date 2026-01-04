@@ -4,13 +4,15 @@
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
         "BlockInventorySlotsMixin",
-        "DisableAutoPickupMixin"
-	],
-    "client": [
+        "DisableAutoPickupMixin",
       "DisableHotbarScrollMixin",
       "HotbarMixin",
       "LockSelectedSlotMixin",
-      "RemoveInventorySlotsMixin"
+      "RemoveInventorySlotsMixin",
+      "ManualPickupMixin"
+	],
+    "client": [
+
     ],
 	"injectors": {
 		"defaultRequire": 1
