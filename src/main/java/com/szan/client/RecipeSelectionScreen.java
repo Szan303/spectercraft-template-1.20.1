@@ -1,9 +1,8 @@
 package com.szan.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.gui.DrawContext;
+import net. minecraft.client.gui.DrawContext;
 import net.minecraft. client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net. minecraft.network.PacketByteBuf;
@@ -14,18 +13,19 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class RecipeSelectionScreen extends Screen {
     private static final Logger LOGGER = LoggerFactory.getLogger("SpecterCraft/RecipeScreen");
 
-    private static final int SLOT_SIZE = 64;
-    private static final int SLOT_PADDING = 8;
-    private static final int COLUMNS = 3;
-    private static final int MAX_VISIBLE_ROWS = 3; // Maksymalnie 3 rzędy widoczne
+    private static final int SLOT_SIZE = 18; // Vanilla slot size (16x16 + 2px border)
+    private static final int SLOT_PADDING = 4;
+    private static final int COLUMNS = 9; // Więcej kolumn bo są mniejsze
+    private static final int MAX_VISIBLE_ROWS = 6; // Więcej rzędów
 
     private final List<RecipeEntry> recipes;
     private int hoveredIndex = -1;
-    private int scrollOffset = 0; // Offset scrollowania (w wierszach)
+    private int scrollOffset = 0;
     private int maxScrollOffset = 0;
 
     public static class RecipeEntry {
@@ -46,7 +46,6 @@ public class RecipeSelectionScreen extends Screen {
         super(Text.literal("Wybierz recepturę"));
         this.recipes = recipes;
 
-        // Oblicz max scroll
         int totalRows = (int) Math.ceil((double) recipes.size() / COLUMNS);
         this.maxScrollOffset = Math.max(0, totalRows - MAX_VISIBLE_ROWS);
 
@@ -62,7 +61,6 @@ public class RecipeSelectionScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        // Tło
         renderBackground(context);
 
         // Tytuł
@@ -70,22 +68,21 @@ public class RecipeSelectionScreen extends Screen {
                 this.textRenderer,
                 this.title,
                 this.width / 2,
-                20,
+                10,
                 0xFFFFFF
         );
 
         // Oblicz layout
         int totalWidth = COLUMNS * (SLOT_SIZE + SLOT_PADDING) - SLOT_PADDING;
         int startX = (this.width - totalWidth) / 2;
-        int startY = 50;
+        int startY = 30;
 
         hoveredIndex = -1;
 
-        // Oblicz które receptury są widoczne
         int startIndex = scrollOffset * COLUMNS;
         int endIndex = Math.min(startIndex + (MAX_VISIBLE_ROWS * COLUMNS), recipes.size());
 
-        // Renderuj tylko widoczne sloty
+        // Renderuj sloty
         for (int i = startIndex; i < endIndex; i++) {
             RecipeEntry recipe = recipes.get(i);
 
@@ -94,9 +91,8 @@ public class RecipeSelectionScreen extends Screen {
             int row = relativeIndex / COLUMNS;
 
             int slotX = startX + col * (SLOT_SIZE + SLOT_PADDING);
-            int slotY = startY + row * (SLOT_SIZE + SLOT_PADDING + 20);
+            int slotY = startY + row * (SLOT_SIZE + SLOT_PADDING);
 
-            // Sprawdź hover
             boolean isHovered = mouseX >= slotX && mouseX < slotX + SLOT_SIZE &&
                     mouseY >= slotY && mouseY < slotY + SLOT_SIZE;
 
@@ -104,31 +100,22 @@ public class RecipeSelectionScreen extends Screen {
                 hoveredIndex = i;
             }
 
-            // Render slot
             renderRecipeSlot(context, recipe, slotX, slotY, isHovered);
         }
 
-        // Render tooltip jeśli hover
+        // Tooltip
         if (hoveredIndex >= 0 && hoveredIndex < recipes.size()) {
             renderTooltip(context, recipes. get(hoveredIndex), mouseX, mouseY);
         }
 
-        // Scroll indicator (jeśli potrzebny)
+        // Scroll indicator
         if (maxScrollOffset > 0) {
             String scrollText = String.format("(%d/%d)", scrollOffset + 1, maxScrollOffset + 1);
             context.drawCenteredTextWithShadow(
                     this.textRenderer,
                     Text.literal(scrollText).styled(s -> s.withColor(0xAAAAAA)),
                     this.width / 2,
-                    this.height - 50,
-                    0xAAAAAA
-            );
-
-            context.drawCenteredTextWithShadow(
-                    this.textRenderer,
-                    Text.literal("Scroll = Przewijanie").styled(s -> s.withColor(0xAAAAAA)),
-                    this.width / 2,
-                    this.height - 40,
+                    this. height - 30,
                     0xAAAAAA
             );
         }
@@ -138,7 +125,7 @@ public class RecipeSelectionScreen extends Screen {
                 this.textRenderer,
                 Text.literal("ESC = Anuluj").styled(s -> s.withColor(0xAAAAAA)),
                 this.width / 2,
-                this.height - 20,
+                this.height - 15,
                 0xAAAAAA
         );
 
@@ -146,64 +133,66 @@ public class RecipeSelectionScreen extends Screen {
     }
 
     private void renderRecipeSlot(DrawContext context, RecipeEntry recipe, int x, int y, boolean hovered) {
-        // Tło slotu
-        int bgColor = hovered ? 0x80FFFFFF : 0x80000000;
+        // Tło slotu (vanilla-like)
+        int bgColor = hovered ? 0xAA808080 : 0xAA3A3A3A;
         context.fill(x, y, x + SLOT_SIZE, y + SLOT_SIZE, bgColor);
 
-        // Border
-        int borderColor = hovered ? 0xFFFFFFFF : 0xFF8B8B8B;
-        context.drawBorder(x, y, SLOT_SIZE, SLOT_SIZE, borderColor);
+        // Border (vanilla-like)
+        int borderColorLight = hovered ? 0xFFFFFFFF : 0xFF8B8B8B;
+        int borderColorDark = hovered ? 0xFFAAAAAA : 0xFF373737;
 
-        // Item icon (centered, 32x32)
-        int itemSize = 32;
-        int itemX = x + (SLOT_SIZE - itemSize) / 2;
-        int itemY = y + (SLOT_SIZE - itemSize) / 2 - 8;
+        // Światło (góra, lewo)
+        context.fill(x, y, x + SLOT_SIZE, y + 1, borderColorLight);
+        context.fill(x, y, x + 1, y + SLOT_SIZE, borderColorLight);
+
+        // Cień (dół, prawo)
+        context.fill(x, y + SLOT_SIZE - 1, x + SLOT_SIZE, y + SLOT_SIZE, borderColorDark);
+        context.fill(x + SLOT_SIZE - 1, y, x + SLOT_SIZE, y + SLOT_SIZE, borderColorDark);
+
+        // Item icon (16x16, centered w slocie 18x18)
+        int itemX = x + 1;
+        int itemY = y + 1;
 
         context.drawItem(recipe.result, itemX, itemY);
 
-        // Count badge
+        // Item count overlay (vanilla-style)
         if (recipe.count > 1) {
-            String countText = "x" + recipe.count;
-            int textWidth = this.textRenderer.getWidth(countText);
-            int badgeX = x + SLOT_SIZE - textWidth - 4;
-            int badgeY = y + SLOT_SIZE - 16;
-
-            context.fill(badgeX - 2, badgeY - 2, badgeX + textWidth + 2, badgeY + 10, 0xAA000000);
-            context.drawText(this.textRenderer, countText, badgeX, badgeY, 0xFFFFFF, true);
+            context.drawItemInSlot(this.textRenderer, recipe.result, itemX, itemY, String.valueOf(recipe.count));
         }
-
-        // Item name
-        Text itemName = recipe.result.getName();
-        int nameWidth = this.textRenderer.getWidth(itemName);
-        int nameX = x + (SLOT_SIZE - nameWidth) / 2;
-        int nameY = y + SLOT_SIZE + 4;
-
-        context.drawText(
-                this.textRenderer,
-                itemName,
-                nameX,
-                nameY,
-                hovered ? 0xFFFF55 : 0xFFFFFF,
-                true
-        );
     }
 
     private void renderTooltip(DrawContext context, RecipeEntry recipe, int mouseX, int mouseY) {
         List<Text> tooltip = new ArrayList<>();
 
-        tooltip.add(
-                recipe.result.getName().copy()
-                        .append(Text.literal(" x" + recipe.count).styled(s -> s.withColor(0xAAAAAA)))
-        );
+        // Nazwa + count
+        Text recipeName = recipe.result.getName().copy();
+        if (recipe.count > 1) {
+            recipeName = recipeName.copy()
+                    .append(Text.literal(" x" + recipe.count).styled(s -> s.withColor(0xAAAAAA)));
+        }
+        tooltip.add(recipeName);
 
         tooltip.add(Text.literal(""));
         tooltip.add(Text. literal("Wymaga: ").styled(s -> s.withColor(0xAAAAAA)));
 
-        for (ItemStack ingredient : recipe.ingredients) {
-            tooltip. add(
+        // Grupuj identyczne ingredienty
+        Map<String, Integer> ingredientCounts = new java.util.HashMap<>();
+        Map<String, ItemStack> ingredientStacks = new java.util.HashMap<>();
+
+        for (ItemStack ingredient :  recipe.ingredients) {
+            String key = ingredient.getItem().toString();
+            ingredientCounts.put(key, ingredientCounts.getOrDefault(key, 0) + 1);
+            ingredientStacks.putIfAbsent(key, ingredient);
+        }
+
+        for (Map.Entry<String, Integer> entry : ingredientCounts. entrySet()) {
+            ItemStack stack = ingredientStacks.get(entry.getKey());
+            int count = entry.getValue();
+
+            tooltip.add(
                     Text.literal("  • ").styled(s -> s.withColor(0x555555))
-                            .append(ingredient.getName())
-                            .append(Text. literal(" x" + ingredient.getCount()).styled(s -> s.withColor(0xAAAAAA)))
+                            .append(stack.getName())
+                            .append(Text. literal(" x" + count).styled(s -> s.withColor(0xAAAAAA)))
             );
         }
 
@@ -233,14 +222,12 @@ public class RecipeSelectionScreen extends Screen {
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
         if (maxScrollOffset > 0) {
             if (amount > 0) {
-                // Scroll w górę
                 scrollOffset = Math.max(0, scrollOffset - 1);
             } else if (amount < 0) {
-                // Scroll w dół
                 scrollOffset = Math.min(maxScrollOffset, scrollOffset + 1);
             }
 
-            LOGGER.debug("[RecipeScreen] Scroll offset: {}", scrollOffset);
+            LOGGER.debug("[RecipeScreen] Scroll offset:  {}", scrollOffset);
             return true;
         }
 

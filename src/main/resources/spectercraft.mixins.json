@@ -9,7 +9,10 @@
       "LockSelectedSlotMixin",
       "RemoveInventorySlotsMixin",
       "ItemEntityDespawnMixin",
-      "PlayerDropItemMixin"
+      "PlayerDropItemMixin",
+      "InventoryScreenMixin",
+      "BlockInventoryMixin",
+      "BlockInventoryKeyMixin"
 	],
     "client": [
 
