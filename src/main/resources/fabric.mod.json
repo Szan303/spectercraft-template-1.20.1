@@ -21,6 +21,9 @@
 		"client": [
 			"com.szan.SpecterCraftClient"
 		],
+        "client": [
+          "com.szan.SpecterCraftClient"
+        ],
 		"fabric-datagen": [
 			"com.szan.SpecterCraftDataGenerator"
 		]
