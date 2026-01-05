@@ -1,19 +1,19 @@
 package com.szan. handler;
 
-import com.szan. SpecterCraft;
-import io.netty.buffer.Unpooled;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import com.szan.SpecterCraft;
+import io.netty.buffer. Unpooled;
+import net.fabricmc.fabric.api. networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft. item.ItemStack;
-import net.minecraft. network.PacketByteBuf;
-import net.minecraft.recipe. Ingredient;
-import net.minecraft. server.network.ServerPlayerEntity;
+import net.minecraft.item. ItemStack;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft. recipe.Ingredient;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util. collection.DefaultedList;
 import net.minecraft.world.World;
-import org.slf4j.Logger;
+import org.slf4j. Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public class NetworkHandler {
         List<ItemEntity> itemEntities;
         List<CraftingHelper. RecipeOption> recipeOptions;
 
-        CraftingMenuSession(List<ItemEntity> entities, List<CraftingHelper. RecipeOption> options) {
+        CraftingMenuSession(List<ItemEntity> entities, List<CraftingHelper.RecipeOption> options) {
             this.itemEntities = entities;
             this.recipeOptions = options;
         }
@@ -41,10 +41,10 @@ public class NetworkHandler {
         LOGGER.info("Rejestrowanie NetworkHandler...");
 
         // PICKUP/CRAFT packet (klient → serwer)
-        ServerPlayNetworking.registerGlobalReceiver(
+        ServerPlayNetworking. registerGlobalReceiver(
                 SpecterCraft.PICKUP_PACKET_ID,
                 (server, player, handler, buf, responseSender) -> {
-                    int entityId = buf.readInt();
+                    int entityId = buf. readInt();
                     boolean isCrafting = buf.readBoolean();
 
                     server.execute(() -> {
@@ -68,11 +68,11 @@ public class NetworkHandler {
 
         // RECIPE_SELECTED packet (klient → serwer)
         ServerPlayNetworking.registerGlobalReceiver(
-                SpecterCraft.RECIPE_SELECTED_PACKET_ID,
+                SpecterCraft. RECIPE_SELECTED_PACKET_ID,
                 (server, player, handler, buf, responseSender) -> {
                     Identifier recipeId = buf.readIdentifier();
 
-                    server.execute(() -> {
+                    server. execute(() -> {
                         LOGGER.info("[Network] Gracz {} wybrał recepturę: {}", player.getName().getString(), recipeId);
 
                         CraftingMenuSession session = menuSessions.get(player);
@@ -92,7 +92,7 @@ public class NetworkHandler {
                         }
 
                         if (selectedOption == null) {
-                            LOGGER.warn("[Network] Nie znaleziono receptury {}", recipeId);
+                            LOGGER. warn("[Network] Nie znaleziono receptury {}", recipeId);
                             player.sendMessage(Text.literal("✗ Błąd: receptura nie istnieje"), true);
                             return;
                         }
@@ -108,6 +108,27 @@ public class NetworkHandler {
                 }
         );
 
+        // ====== SLOT_SWAP packet (klient → serwer) ======
+        ServerPlayNetworking.registerGlobalReceiver(
+                SpecterCraft.SLOT_SWAP_PACKET_ID,  // ← Teraz używa z SpecterCraft.java
+                (server, player, handler, buf, responseSender) -> {
+                    int fromSlot = buf.readInt();
+                    int toSlot = buf. readInt();
+
+                    server. execute(() -> {
+                        ItemStack fromStack = player.getInventory().getStack(fromSlot).copy();
+                        ItemStack toStack = player.getInventory().getStack(toSlot).copy();
+
+                        player.getInventory().setStack(fromSlot, toStack);
+                        player.getInventory().setStack(toSlot, fromStack);
+
+                        player.currentScreenHandler. sendContentUpdates();
+
+                        LOGGER.info("[Network] Zamieniono sloty {} <-> {}", fromSlot, toSlot);
+                    });
+                }
+        );
+
         LOGGER.info("✓ NetworkHandler zarejestrowany!");
     }
 
@@ -116,9 +137,6 @@ public class NetworkHandler {
      */
     private static void handleCraftRequest(ServerPlayerEntity player, ItemEntity itemEntity) {
         boolean success = CraftingHelper.attemptCraft(player, itemEntity);
-
-        // Jeśli CraftingHelper zwrócił false i ma wiele receptur, otwórz menu
-        // (To zostanie obsłużone przez callback)
     }
 
     /**
@@ -128,7 +146,7 @@ public class NetworkHandler {
         LOGGER.info("[Network] Wysyłanie {} receptur do gracza {}", options.size(), player.getName().getString());
 
         // Zapisz sesję
-        menuSessions.put(player, new CraftingMenuSession(itemEntities, options));
+        menuSessions. put(player, new CraftingMenuSession(itemEntities, options));
 
         // Stwórz packet
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
@@ -138,37 +156,37 @@ public class NetworkHandler {
 
         for (CraftingHelper.RecipeOption option : options) {
             // Recipe ID
-            buf.writeIdentifier(option.recipe.getId());
+            buf. writeIdentifier(option.recipe. getId());
 
             // Wynik (item + total count)
-            buf.writeItemStack(option.totalResult);
+            buf.writeItemStack(option. totalResult);
             buf.writeInt(option.totalResult.getCount());
 
             // Ingredienty
-            DefaultedList<Ingredient> ingredients = option.recipe.getIngredients();
+            DefaultedList<Ingredient> ingredients = option.recipe. getIngredients();
             List<ItemStack> ingredientStacks = new ArrayList<>();
 
             for (Ingredient ingredient : ingredients) {
                 if (! ingredient.isEmpty()) {
                     ItemStack[] matching = ingredient.getMatchingStacks();
-                    if (matching. length > 0) {
+                    if (matching.length > 0) {
                         ingredientStacks.add(matching[0]. copy());
                     }
                 }
             }
 
-            buf.writeInt(ingredientStacks.size());
+            buf. writeInt(ingredientStacks. size());
             for (ItemStack stack : ingredientStacks) {
                 buf.writeItemStack(stack);
             }
 
             LOGGER.debug("[Network] Dodano recepturę: {} x{}",
                     option.totalResult.getItem().getName().getString(),
-                    option. totalResult.getCount());
+                    option.totalResult. getCount());
         }
 
         // Wyślij packet
-        ServerPlayNetworking.send(player, SpecterCraft.RECIPE_LIST_PACKET_ID, buf);
+        ServerPlayNetworking.send(player, SpecterCraft. RECIPE_LIST_PACKET_ID, buf);
 
         LOGGER.info("[Network] Packet RECIPE_LIST wysłany!");
     }
@@ -181,11 +199,10 @@ public class NetworkHandler {
         ItemStack handStack = player.getInventory().getStack(0);
 
         if (handStack.isEmpty()) {
-            player.getInventory().setStack(0, itemStack. copy());
+            player.getInventory().setStack(0, itemStack.copy());
             itemEntity.discard();
             LOGGER.info("[Network] ✓ Item podniesiony!");
-        }
-        else if (ItemStack.canCombine(handStack, itemStack)) {
+        } else if (ItemStack.canCombine(handStack, itemStack)) {
             int totalCount = handStack.getCount() + itemStack.getCount();
             int maxCount = handStack.getMaxCount();
 
@@ -196,15 +213,14 @@ public class NetworkHandler {
             } else {
                 int canAdd = maxCount - handStack.getCount();
                 handStack.setCount(maxCount);
-                itemStack.setCount(itemStack.getCount() - canAdd);
+                itemStack. setCount(itemStack.getCount() - canAdd);
                 LOGGER.info("[Network] ⚠ Stack pełny!");
             }
-        }
-        else {
+        } else {
             player.sendMessage(
                     Text.literal("✗ Najpierw upuść:  ")
                             .styled(style -> style.withColor(0xFF5555))
-                            .append(handStack.getName().copy().styled(style -> style.withColor(0xFFAA00))),
+                            .append(handStack.getName().copy().styled(style -> style. withColor(0xFFAA00))),
                     true
             );
             LOGGER.info("[Network] ✗ Slot zajęty!");
