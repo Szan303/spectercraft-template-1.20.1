@@ -1,7 +1,7 @@
 {
   "variants": {
     "drying_stage=0": {
-      "model": "spectercraft:block/wet_clay_0"
+      "model":  "spectercraft:block/wet_clay_0"
     },
     "drying_stage=1": {
       "model": "spectercraft:block/wet_clay_1"
