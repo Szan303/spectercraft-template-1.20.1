@@ -1,70 +1,80 @@
 package com.szan.handler;
 
-import net.fabricmc.fabric.api. client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api. event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util. TypedActionResult;
+import net.fabricmc.fabric. api.client. event.lifecycle.v1.ClientTickEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RightClickCanceller {
-    private static final Logger LOGGER = LoggerFactory.getLogger("SpecterCraft/RightClickCanceller");
+    private static final Logger LOGGER = LoggerFactory. getLogger("SpecterCraft/RightClickCanceller");
 
-    private static int cancelTimer = 0;
+    private static boolean lookingAtItem = false;
+    private static int cooldownTicks = 0;
 
     /**
-     * Anuluje PPM natychmiast (prewencyjnie)
+     * Ustaw cooldown na określoną liczbę ticków
      */
-    public static void cancelNextRightClick() {
-        cancelTimer = 10; // 10 ticków = 500ms (wystarczy na raycast)
-        LOGGER.info("[RightClickCanceller] ✓ Anulowanie:  {} ticków", cancelTimer);
+    public static void setCooldown(int ticks) {
+        cooldownTicks = ticks;
+        LOGGER.info("[RightClickCanceller] ✓ Cooldown ustawiony:  {} ticków", ticks);
     }
 
     /**
-     * Przywróć PPM (gdy nie ma itemu)
+     * Anuluj PPM na 10 ticków (dla starego systemu)
+     */
+    public static void cancelNextRightClick() {
+        setCooldown(10);
+        LOGGER.info("[RightClickCanceller] ✓ Anulowanie PPM (stary system)");
+    }
+
+    /**
+     * Przywróć PPM (wyzeruj cooldown)
      */
     public static void restore() {
-        cancelTimer = 0;
+        cooldownTicks = 0;
+        lookingAtItem = false;
         LOGGER.info("[RightClickCanceller] ✓ PPM przywrócony");
     }
 
     /**
-     * Sprawdź czy anulowanie aktywne
+     * Ustaw czy gracz patrzy na item
      */
-    public static boolean isActive() {
-        return cancelTimer > 0;
+    public static void setLookingAtItem(boolean looking) {
+        lookingAtItem = looking;
     }
 
-    public static void register() {
-        LOGGER.info("Rejestrowanie RightClickCanceller.. .");
+    /**
+     * Sprawdź czy anulować PPM
+     * - Gdy patrzysz na item (nowy system)
+     * - Lub gdy cooldown aktywny (stary system)
+     */
+    public static boolean shouldCancel() {
+        return lookingAtItem || cooldownTicks > 0;
+    }
 
-        // Tick event - zmniejszaj timer
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (cancelTimer > 0) {
-                cancelTimer--;
-                if (cancelTimer == 0) {
-                    LOGGER.debug("[RightClickCanceller] Timer wygasł");
+    /**
+     * Sprawdź czy patrzysz na item
+     */
+    public static boolean isLookingAtItem() {
+        return lookingAtItem;
+    }
+
+    /**
+     * Zarejestruj tick event
+     */
+    public static void register() {
+        LOGGER.info("[RightClickCanceller] Rejestrowanie handlera.. .");
+
+        // Tick event - zmniejszaj cooldown
+        ClientTickEvents. END_CLIENT_TICK.register(client -> {
+            if (cooldownTicks > 0) {
+                cooldownTicks--;
+
+                if (cooldownTicks == 0) {
+                    LOGGER.debug("[RightClickCanceller] Cooldown wygasł");
                 }
             }
         });
 
-        // Anuluj UseItem (PPM na item w ręce)
-        UseItemCallback.EVENT.register((player, world, hand) -> {
-            if (world.isClient && cancelTimer > 0) {
-                LOGGER. info("[RightClickCanceller] ✓ UseItem ANULOWANY!");
-                return TypedActionResult.fail(player. getStackInHand(hand));
-            }
-            return TypedActionResult.pass(player.getStackInHand(hand));
-        });
-
-        // Anuluj UseBlock (PPM na blok/powietrze)
-        UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
-            if (world.isClient && cancelTimer > 0) {
-                LOGGER.info("[RightClickCanceller] ✓ UseBlock ANULOWANY!");
-                return ActionResult. FAIL;
-            }
-            return ActionResult.PASS;
-        });
+        LOGGER.info("[RightClickCanceller] ✓ Zarejestrowany!");
     }
 }

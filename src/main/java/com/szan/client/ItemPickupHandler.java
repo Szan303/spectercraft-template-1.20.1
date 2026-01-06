@@ -28,25 +28,37 @@ public class ItemPickupHandler {
         if (client.player == null || client.world == null) return;
         if (client.currentScreen != null) return;
 
-        Vec3d cameraPos = client. player.getCameraPosVec(1.0F);
-        Vec3d lookVec = client.player.getRotationVec(1.0F);
+        // ========== ANULUJ PPM NATYCHMIAST!   ==========
+        RightClickCanceller.cancelNextRightClick();
+        LOGGER.debug("[ItemPickup] ✓ PPM anulowany prewencyjnie");
+
+        Vec3d cameraPos = client.player.getCameraPosVec(1.0F);
+        Vec3d lookVec = client. player.getRotationVec(1.0F);
         double maxReach = 4.5;
 
         List<ItemEntity> nearbyItems = new ArrayList<>(client.world.getEntitiesByClass(
                 ItemEntity.class,
                 client.player.getBoundingBox().expand(maxReach),
-                entity -> !entity.isRemoved()
+                entity -> ! entity.isRemoved()
         ));
 
-        // INSTANT raycast (bez async)
-        ItemEntity target = findNearestItem(nearbyItems, cameraPos, lookVec, maxReach);
+        LOGGER.debug("[ItemPickup] Znaleziono {} itemów", nearbyItems.size());
 
-        if (target != null) {
-            // Anuluj PPM TYLKO jeśli znaleźliśmy item
-            RightClickCanceller.cancelNextRightClick();
-            pickupItem(client, target);
+        // Jeśli NIE MA itemów w pobliżu, przywróć PPM
+        if (nearbyItems.isEmpty()) {
+            RightClickCanceller.restore();
+            LOGGER.debug("[ItemPickup] Brak itemów - przywrócono PPM");
+            return;
         }
-        // Jeśli nie ma itemu, vanilla PPM działa normalnie
+
+        // ASYNC:  Znajdź item
+        CompletableFuture. supplyAsync(() -> {
+            return findNearestItem(nearbyItems, cameraPos, lookVec, maxReach);
+        }, ASYNC_EXECUTOR).thenAcceptAsync(target -> {
+            client.execute(() -> {
+                pickupItem(client, target);
+            });
+        });
     }
 
     private static ItemEntity findNearestItem(List<ItemEntity> items, Vec3d cameraPos, Vec3d lookVec, double maxReach) {

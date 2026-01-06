@@ -1,26 +1,28 @@
 {
-	"required": true,
-	"package": "com.szan.mixin",
-	"compatibilityLevel": "JAVA_17",
-	"mixins": [
-        "BlockInventorySlotsMixin",
-      "DisableHotbarScrollMixin",
-      "HotbarMixin",
-      "LockSelectedSlotMixin",
-      "RemoveInventorySlotsMixin",
-      "ItemEntityDespawnMixin",
-      "PlayerDropItemMixin",
-      "InventoryScreenMixin",
-      "BlockInventoryMixin",
-      "BlockInventoryKeyMixin"
-	],
-    "client": [
-
-    ],
-	"injectors": {
-		"defaultRequire": 1
-	},
-	"overwrites": {
-		"requireAnnotations": true
-	}
+  "required": true,
+  "package": "com.szan.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins":  [
+    "BlockInventorySlotsMixin"
+  ],
+  "client":  [
+    "BlockInventoryKeyMixin",
+    "BlockInventoryMixin",
+    "CancelRightClickMixin",
+    "DisableHotbarScrollMixin",
+    "HotbarMixin",
+    "InventoryScreenMixin",
+    "ItemEntityDespawnMixin",
+    "LockSelectedSlotMixin",
+    "LookingAtItemMixin",
+    "ManualPickupMixin",
+    "PlayerDropItemMixin",
+    "RemoveInventorySlotsMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
 }

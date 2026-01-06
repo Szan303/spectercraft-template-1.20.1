@@ -1,7 +1,6 @@
 package com.szan;
 
 import com.szan.client.ClientNetworking;
-import com.szan.client.ItemPickupHandler;
 import com. szan.client.KeyBindings;
 import com.szan. client.screen.CustomInventoryScreen;
 import net.fabricmc.api.ClientModInitializer;
@@ -43,9 +42,9 @@ public class SpecterCraftClient implements ClientModInitializer {
             long window = client.getWindow().getHandle();
             boolean isRightPressed = GLFW.glfwGetMouseButton(window, GLFW. GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
 
-            if (isRightPressed && !wasRightPressed) {
-                ItemPickupHandler.handleRightClick(client);
-            }
+//            if (isRightPressed && !wasRightPressed) {
+//                ItemPickupHandler.handleRightClick(client);
+//            }
 
             wasRightPressed = isRightPressed;
 
