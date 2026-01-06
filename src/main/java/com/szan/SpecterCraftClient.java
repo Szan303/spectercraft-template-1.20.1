@@ -1,14 +1,13 @@
 package com.szan;
 
-import com.szan.client.CustomInventoryHandledScreen;
+import com.szan.client.CustomInventoryScreen;
 import com.szan.client.RecipeSelectionScreen;
-import com.szan.handler.CustomScreenHandler;
+import com.szan.handler.RightClickCanceller;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client. networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client. screenhandler.v1.ScreenRegistry;
 import net.minecraft. client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
@@ -16,7 +15,6 @@ import net.minecraft. client.util.InputUtil;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft. item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
-import net. minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util. math.Vec3d;
@@ -46,8 +44,6 @@ public class SpecterCraftClient implements ClientModInitializer {
         LOGGER.info("============================================");
 
         // ====== REJESTRACJA SCREEN HANDLER ======
-        ScreenRegistry. register(SpecterCraft. CUSTOM_SCREEN_HANDLER, CustomInventoryHandledScreen::new);
-        LOGGER.info("[Client] ✓ Screen handler zarejestrowany");
 
         // Zarejestruj key binding dla inventory
         inventoryKeyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -124,24 +120,29 @@ public class SpecterCraftClient implements ClientModInitializer {
      */
     private void handleRightClickAsync(MinecraftClient client) {
         // Skopiuj dane potrzebne do obliczeń (żeby wątek miał snapshot)
-        if (client. player == null || client.world == null) {
+        if (client.player == null || client.world == null) {
             return;
         }
 
+        // ========== FIX:  NIE DZIAŁAJ GDY INVENTORY OTWARTY ==========
+        if (client.currentScreen != null) {
+            return;  // Ignoruj PPM gdy mamy otwarte GUI
+        }
+
         Vec3d cameraPos = client.player.getCameraPosVec(1.0F);
-        Vec3d lookVec = client.player. getRotationVec(1.0F);
+        Vec3d lookVec = client.player.getRotationVec(1.0F);
         double maxReach = 4.5;
 
-        // Skopiuj listę itemów (żeby wątek nie dotykał client.world)
+        // Skopiuj listę itemów (żeby wątek nie dotykał client. world)
         List<ItemEntity> nearbyItems = new ArrayList<>(client.world.getEntitiesByClass(
-                ItemEntity. class,
-                client.player. getBoundingBox().expand(maxReach),
-                entity -> ! entity.isRemoved()
+                ItemEntity.class,
+                client.player.getBoundingBox().expand(maxReach),
+                entity -> !entity.isRemoved()
         ));
 
-        LOGGER.debug("[Client Async] Znaleziono {} itemów do przetworzenia", nearbyItems. size());
+        LOGGER.debug("[Client Async] Znaleziono {} itemów do przetworzenia", nearbyItems.size());
 
-        // ASYNC:  Znajdź najbliższy item (w tle)
+        // ASYNC: Znajdź najbliższy item (w tle)
         CompletableFuture. supplyAsync(() -> {
             return findNearestItemEntityAsync(nearbyItems, cameraPos, lookVec, maxReach);
         }, ASYNC_EXECUTOR).thenAcceptAsync(target -> {
@@ -184,11 +185,16 @@ public class SpecterCraftClient implements ClientModInitializer {
 
         return closest;
     }
-
     /**
      * SYNC: Obsłuż znaleziony item (main thread)
      */
     private void handleItemFound(MinecraftClient client, ItemEntity target) {
+        // Sprawdź czy inventory jest otwarty
+        if (client.currentScreen instanceof CustomInventoryScreen) {
+            LOGGER.debug("[Client] Inventory otwarty - ignoruję PPM na itemki");
+            return;
+        }
+
         LOGGER.info("========================================");
         LOGGER.info("[Client] Wynik async raycast");
         LOGGER.info("[Client] Znaleziony ItemEntity: {}", target);
@@ -209,13 +215,17 @@ public class SpecterCraftClient implements ClientModInitializer {
 
             client.player.swingHand(Hand.MAIN_HAND);
 
-            LOGGER.info("[Client] ✓ Packet wysłany!");
+            // ========== ANULUJ NASTĘPNY PPM! ==========
+            RightClickCanceller.cancelNextRightClick();
+
+            LOGGER.info("[Client] ✓ Packet wysłany + PPM anulowany!");
         } else {
             LOGGER.info("[Client] ✗ Brak ItemEntity w zasięgu wzroku");
         }
 
         LOGGER.info("========================================");
     }
+
 
     /**
      * Toggle inventory (E key) - UŻYWA HANDLEDSCREEN
@@ -225,19 +235,12 @@ public class SpecterCraftClient implements ClientModInitializer {
 
         Screen currentScreen = client.currentScreen;
 
-        if (currentScreen instanceof CustomInventoryHandledScreen) {
-            // Zamknij inventory
+        if (currentScreen instanceof CustomInventoryScreen) {
             client.setScreen(null);
-            LOGGER.info("[Client] Inventory zamknięty (toggle)");
+            LOGGER.info("[Client] Inventory zamknięty");
         } else if (currentScreen == null) {
-            // Otwórz HandledScreen
-            CustomScreenHandler handler = new CustomScreenHandler(0, client.player.getInventory());
-            client.setScreen(new CustomInventoryHandledScreen(
-                    handler,
-                    client.player.getInventory(),
-                    Text.literal("Ekwipunek")
-            ));
-            LOGGER.info("[Client] Inventory otwarty (HandledScreen)");
+            client.setScreen(new CustomInventoryScreen());
+            LOGGER.info("[Client] Inventory otwarty");
         }
     }
 }

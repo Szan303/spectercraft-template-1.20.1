@@ -12,7 +12,8 @@
       "PlayerDropItemMixin",
       "InventoryScreenMixin",
       "BlockInventoryMixin",
-      "BlockInventoryKeyMixin"
+      "BlockInventoryKeyMixin",
+      "CancelRightClickMixin"
 	],
     "client": [
 
