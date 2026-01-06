@@ -1,6 +1,6 @@
 package com.szan.mixin;
 
-import com.szan.client.CustomInventoryScreen;
+import com.szan.client.screen.CustomInventoryScreen;
 import net.minecraft.client. MinecraftClient;
 import net. minecraft.client.gui.screen. ingame.InventoryScreen;
 import net.minecraft.entity.player.PlayerEntity;

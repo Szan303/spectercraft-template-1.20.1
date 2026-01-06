@@ -1,6 +1,7 @@
 package com.szan.handler;
 
 import com.szan.SpecterCraft;
+import com.szan.registry.ModPackets;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
@@ -42,7 +43,7 @@ public class NetworkHandler {
 
         // PICKUP/CRAFT packet (klient → serwer)
         ServerPlayNetworking. registerGlobalReceiver(
-                SpecterCraft.PICKUP_PACKET_ID,
+                ModPackets.PICKUP,
                 (server, player, handler, buf, responseSender) -> {
                     int entityId = buf. readInt();
                     boolean isCrafting = buf.readBoolean();
@@ -68,7 +69,7 @@ public class NetworkHandler {
 
         // RECIPE_SELECTED packet (klient → serwer)
         ServerPlayNetworking.registerGlobalReceiver(
-                SpecterCraft. RECIPE_SELECTED_PACKET_ID,
+                ModPackets.RECIPE_SELECTED,
                 (server, player, handler, buf, responseSender) -> {
                     Identifier recipeId = buf.readIdentifier();
 
@@ -110,7 +111,7 @@ public class NetworkHandler {
 
         // ====== SLOT_SWAP packet (klient → serwer) - STARY (można usunąć jeśli nie używany) ======
         ServerPlayNetworking.registerGlobalReceiver(
-                SpecterCraft.SLOT_SWAP_PACKET_ID,
+                ModPackets.SLOT_SWAP,
                 (server, player, handler, buf, responseSender) -> {
                     int fromSlot = buf.readInt();
                     int toSlot = buf.readInt();
@@ -131,7 +132,7 @@ public class NetworkHandler {
 
         // ====== SLOT_CLICK packet (klient → serwer) - NOWY!  ======
         ServerPlayNetworking.registerGlobalReceiver(
-                SpecterCraft. SLOT_CLICK_PACKET_ID,
+                ModPackets.SLOT_CLICK,
                 (server, player, handler, buf, responseSender) -> {
                     int slotIndex = buf.readInt();
                     int button = buf.readInt();  // 0=left, 1=right
@@ -374,7 +375,7 @@ public class NetworkHandler {
         }
 
         // Wyślij packet
-        ServerPlayNetworking.send(player, SpecterCraft. RECIPE_LIST_PACKET_ID, buf);
+        ServerPlayNetworking.send(player, ModPackets.RECIPE_LIST, buf);
 
         LOGGER.info("[Network] Packet RECIPE_LIST wysłany!");
     }

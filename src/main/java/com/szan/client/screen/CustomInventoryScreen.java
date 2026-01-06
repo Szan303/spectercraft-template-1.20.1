@@ -1,5 +1,7 @@
-package com.szan. client;
+package com.szan.client.screen;
 
+import com.szan.client.ClientNetworking;
+import com.szan.registry.ModPackets;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
@@ -444,7 +446,7 @@ public class CustomInventoryScreen extends Screen {
         buf.writeInt(button);
         buf.writeInt(cursorSlot);
         buf.writeInt(actionType);
-        ClientPlayNetworking.send(SpecterCraft.SLOT_CLICK_PACKET_ID, buf);
+        ClientPlayNetworking.send(ModPackets.SLOT_CLICK, buf);
     }
 
     @Override

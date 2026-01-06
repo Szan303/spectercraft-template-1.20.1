@@ -1,5 +1,6 @@
-package com.szan.client;
+package com.szan.client.screen;
 
+import com.szan.registry.ModPackets;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net. minecraft.client.gui.DrawContext;
@@ -209,7 +210,7 @@ public class RecipeSelectionScreen extends Screen {
             PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
             buf.writeIdentifier(selected.recipeId);
 
-            ClientPlayNetworking.send(com.szan. SpecterCraft.RECIPE_SELECTED_PACKET_ID, buf);
+            ClientPlayNetworking.send(ModPackets.RECIPE_SELECTED, buf);
 
             this.close();
             return true;
