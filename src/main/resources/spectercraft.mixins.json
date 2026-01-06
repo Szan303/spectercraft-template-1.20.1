@@ -2,22 +2,9 @@
   "required": true,
   "package": "com.szan.mixin",
   "compatibilityLevel": "JAVA_17",
-  "mixins":  [
-    "BlockInventorySlotsMixin"
+  "mixins": [
   ],
-  "client":  [
-    "BlockInventoryKeyMixin",
-    "BlockInventoryMixin",
-    "CancelRightClickMixin",
-    "DisableHotbarScrollMixin",
-    "HotbarMixin",
-    "InventoryScreenMixin",
-    "ItemEntityDespawnMixin",
-    "LockSelectedSlotMixin",
-    "LookingAtItemMixin",
-    "ManualPickupMixin",
-    "PlayerDropItemMixin",
-    "RemoveInventorySlotsMixin"
+  "client": [
   ],
   "injectors": {
     "defaultRequire": 1

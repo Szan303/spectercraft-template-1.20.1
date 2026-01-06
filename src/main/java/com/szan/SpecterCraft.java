@@ -1,8 +1,5 @@
 package com.szan;
 
-import com.szan.handler.CancelAutoPickup;
-import com.szan.handler. NetworkHandler;
-import com.szan.handler.PlayerDroppedItemTracker;
 import com.szan.registry.*;
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
@@ -19,16 +16,10 @@ public class SpecterCraft implements ModInitializer {
         LOGGER.info("============================================");
 
         // Registry (kolejność WAŻNA!)
-        ModPackets.register();
         ModBlocks.register();
         ModItems.register();
         ModBlockEntities.register();
         ModItemGroups.register();
-
-        // Handlers
-        CancelAutoPickup.register();
-        NetworkHandler.register();
-        PlayerDroppedItemTracker. register();
 
         LOGGER.info("============================================");
         LOGGER.info("[SpecterCraft] ✓ Mod załadowany pomyślnie!");
