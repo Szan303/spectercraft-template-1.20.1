@@ -1,6 +1,10 @@
 package com.szan;
 
-import com.szan.registry.*;
+import com.szan.registry.Block.ModBlockEntities;
+import com.szan.registry.Block.ModBlocks;
+import com.szan.registry.DisabledRecipeRegistry;
+import com.szan.registry.item.ModItemGroups;
+import com.szan.registry.item.ModItems;
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

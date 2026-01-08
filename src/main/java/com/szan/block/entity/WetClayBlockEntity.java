@@ -1,73 +1,41 @@
 package com.szan.block.entity;
 
 import com.szan.block.WetClayBlock;
-import com.szan.registry. ModBlockEntities;
+import com.szan.registry.Block.ModBlockEntities;
 import net.minecraft.block.BlockState;
-import net.minecraft.block. entity.BlockEntity;
-import net.minecraft.nbt.NbtCompound;
-import net. minecraft.util.math.BlockPos;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/**
+ * BlockEntity odpowiedzialny za zwiększanie drying stage co pewien czas.
+ */
 public class WetClayBlockEntity extends BlockEntity {
-    private static final Logger LOGGER = LoggerFactory.getLogger("SpecterCraft/WetClay");
-
-    private int dryingTime = 0;
-    private static final int TIME_PER_STAGE = 200; // 10 sekund (test mode)
+    private static final int STAGE_TICKS = 100; // ticks między kolejnymi stage (np. 100 ~ 5s)
+    private int tickCounter = 0;
 
     public WetClayBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.WET_CLAY_ENTITY, pos, state);
     }
 
-    public static void tick(World world, BlockPos pos, BlockState state, WetClayBlockEntity blockEntity) {
+    // metoda statyczna zgodna z BlockEntityTicker: (World, BlockPos, BlockState, BlockEntity)
+    public static void tick(World world, BlockPos pos, BlockState state, WetClayBlockEntity be) {
         if (world.isClient) return;
+        be.tickServer((ServerWorld) world, pos, state);
+    }
 
-        boolean hasDirectSunlight = world.isSkyVisible(pos. up()) && world.isDay() && !world.isRaining();
+    private void tickServer(ServerWorld world, BlockPos pos, BlockState state) {
+        tickCounter++;
+        if (tickCounter < STAGE_TICKS) return;
+        tickCounter = 0;
 
-        if (hasDirectSunlight) {
-            blockEntity. dryingTime++;
-
-            int currentStage = state.get(WetClayBlock.DRYING_STAGE);
-            int targetStage = Math.min(blockEntity.dryingTime / TIME_PER_STAGE, 4); // ← MAX 4!
-
-            if (targetStage > currentStage) {
-                world.setBlockState(pos, state.with(WetClayBlock.DRYING_STAGE, targetStage));
-                LOGGER.info("[WetClay] Stage {} -> {}", currentStage, targetStage);
-                blockEntity.markDirty();
-
-                // ========== ZATRZYMAJ NA STAGE 4 ==========
-                if (targetStage == 4) {
-                    LOGGER.info("[WetClay] Osiągnięto maksymalny stage (4) - sucha glina!");
-                    // NIE zamieniaj w brick!
-                }
-            }
-        } else if (world.isRaining() && world.isSkyVisible(pos.up())) {
-            // Deszcz spowalnia wysychanie
-            if (blockEntity.dryingTime > 0) {
-                blockEntity.dryingTime = Math.max(0, blockEntity. dryingTime - 2);
-
-                int currentStage = state.get(WetClayBlock.DRYING_STAGE);
-                int targetStage = blockEntity.dryingTime / TIME_PER_STAGE;
-
-                if (targetStage < currentStage) {
-                    world.setBlockState(pos, state.with(WetClayBlock.DRYING_STAGE, targetStage));
-                    LOGGER.info("[WetClay] Deszcz!  Stage {} -> {}", currentStage, targetStage);
-                    blockEntity.markDirty();
-                }
-            }
+        int current = state.get(WetClayBlock.DRYING_STAGE);
+        if (current < WetClayBlock.MAX_STAGE) {
+            int next = current + 1;
+            BlockState nextState = state.with(WetClayBlock.DRYING_STAGE, next);
+            world.setBlockState(pos, nextState, 3);
+            this.markDirty();
         }
-    }
-
-    @Override
-    public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
-        this.dryingTime = nbt.getInt("DryingTime");
-    }
-
-    @Override
-    protected void writeNbt(NbtCompound nbt) {
-        super.writeNbt(nbt);
-        nbt.putInt("DryingTime", this.dryingTime);
     }
 }

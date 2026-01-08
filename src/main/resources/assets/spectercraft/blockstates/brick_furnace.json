@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north":  { "model": "spectercraft:block/brick_furnace" },
+    "facing=south":  { "model": "spectercraft:block/brick_furnace", "y": 180 },
+    "facing=west":   { "model": "spectercraft:block/brick_furnace", "y": 270 },
+    "facing=east":   { "model": "spectercraft:block/brick_furnace", "y": 90 }
+  }
+}

@@ -6,19 +6,24 @@
 		"0": "spectercraft:block/wet_clay_0",
 		"particle": "spectercraft:block/wet_clay_0"
 	},
-	"elements": [
-		{
-			"from": [5, 0, 2],
-			"to": [11, 3, 14],
-			"rotation": {"angle": 0, "axis": "y", "origin": [7, 0, 7]},
-			"faces": {
-				"north": {"uv": [6, 1.5, 9, 3], "texture": "#0"},
-				"east": {"uv": [0, 6, 6, 7.5], "texture": "#0"},
-				"south": {"uv": [6, 3, 9, 4.5], "texture": "#0"},
-				"west": {"uv": [6, 0, 12, 1.5], "texture": "#0"},
-				"up": {"uv": [3, 6, 0, 0], "texture": "#0"},
-				"down": {"uv": [6, 0, 3, 6], "texture": "#0"}
-			}
+    "elements": [
+      {
+        "from": [5, 0, 2],
+        "to": [11, 3, 14],
+        "rotation": {"angle": 0, "axis": "y", "origin": [7, 0, 7]},
+        "faces": {
+          "north": {"uv": [6, 1.5, 9, 3], "texture": "#0"},
+          "east": {"uv": [0, 6, 6, 7.5], "texture": "#0"},
+          "south": {"uv": [6, 3, 9, 4.5], "texture": "#0"},
+          "west": {"uv": [6, 0, 12, 1.5], "texture": "#0"},
+          "up": {"uv": [3, 6, 0, 0], "texture": "#0"},
+          "down": {"uv": [6, 0, 3, 6], "texture": "#0"}
+        }
+      }
+    ],
+	"display": {
+		"thirdperson_righthand": {
+			"translation": [0, 7.25, -0.25]
 		}
-	]
+	}
 }

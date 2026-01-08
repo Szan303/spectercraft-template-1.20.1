@@ -1,4 +1,4 @@
-package com.szan.registry;
+package com.szan.registry.item;
 
 import com.szan. SpecterCraft;
 import net.minecraft.item.Item;
@@ -17,7 +17,9 @@ public class ModItems {
     // public static final Item CUSTOM_ITEM = registerItem("custom_item",
     //     new Item(new Item.Settings())
     // );
-
+    public static final Item PILE_OF_DIRT = registerItem("pile_of_dirt",
+            new Item(new Item.Settings())
+    );
     // Dodaj więcej itemów tutaj...
 
     // ========== HELPER METHODS ==========

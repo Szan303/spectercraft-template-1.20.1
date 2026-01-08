@@ -1,6 +1,7 @@
-package com.szan.registry;
+package com.szan.registry.Block;
 
 import com.szan. SpecterCraft;
+import com.szan.block.BrickFurnace;
 import com.szan.block.WetClayBlock;
 import net.fabricmc.fabric.api.object.builder.v1.block. FabricBlockSettings;
 import net.minecraft.block.Block;
@@ -23,6 +24,14 @@ public class ModBlocks {
                     .sounds(BlockSoundGroup.GRAVEL)
             )
     );
+    public static final Block BLOCK_IDD = registerBlock("block_idd",
+            new Block(FabricBlockSettings.create()));
+
+    public static final Block BRICK_FURNACE = registerBlock("brick_furnace",
+            new BrickFurnace(FabricBlockSettings.copyOf(Blocks.FURNACE)
+            )
+    );
+    // DODAJ PRAWIDŁOWO BLOCK
 
     private static Block registerBlock(String name, Block block) {
         registerBlockItem(name, block);
