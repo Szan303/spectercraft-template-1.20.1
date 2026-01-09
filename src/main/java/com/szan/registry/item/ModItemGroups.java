@@ -1,7 +1,7 @@
 package com.szan.registry.item;
 
 import com.szan. SpecterCraft;
-import com.szan.registry.Block.ModBlocks;
+import com.szan.registry.block.ModBlocks;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;

@@ -1,10 +1,9 @@
 package com.szan.jade;
 
+//import com.szan.block.BrickFurnace_old;
 import com.szan.block.WetClayBlock;
 import com.szan.block.entity.WetClayBlockEntity;
-import com.szan.jade.BrickFurnaceJadeProvider; // jeśli używasz providera
-import com.szan.block.BrickFurnace;
-import com.szan.block.entity.BrickFurnaceEntity;
+//import com.szan.block.entity.BrickFurnaceEntity_old;
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;
@@ -17,7 +16,7 @@ public class SpecterCraftJadePlugin implements IWailaPlugin {
         // =======================================================================================
         // Zarejestruj providera dla Entity (wysyłanie danych serwer→klient) TUTAJ REJESTRUJ ENTITY
         // =======================================================================================
-        registration.registerBlockDataProvider(BrickFurnaceJadeProvider.INSTANCE, BrickFurnaceEntity.class);
+//        registration.registerBlockDataProvider(BrickFurnaceJadeProvider.INSTANCE, BrickFurnaceEntity_old.class);
         registration.registerBlockDataProvider(WetClayJadeProvider.INSTANCE, WetClayBlockEntity.class);
     }
 
@@ -26,7 +25,7 @@ public class SpecterCraftJadePlugin implements IWailaPlugin {
         // =======================================================================================
         // Zarejestruj providera dla bloku (wyświetlanie tooltiptów) TUTAJ KLASĘ PARENTA ENTITY
         // =======================================================================================
-        registration.registerBlockComponent(BrickFurnaceJadeProvider.INSTANCE, BrickFurnace.class);
+//        registration.registerBlockComponent(BrickFurnaceJadeProvider.INSTANCE, BrickFurnace_old.class);
         registration.registerBlockComponent(WetClayJadeProvider.INSTANCE, WetClayBlock.class);
     }
 }

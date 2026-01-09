@@ -1,6 +1,8 @@
 {
   "itemgroup.spectercraft": "SpecterCraft",
+
   "block.spectercraft.wet_clay": "Wet Clay",
-  "key.spectercraft.inventory": "Open Custom Inventory",
+  "block.spectercraft.brick_furnace": "Brick Furnace",
+
   "category.spectercraft":  "SpecterCraft"
 }

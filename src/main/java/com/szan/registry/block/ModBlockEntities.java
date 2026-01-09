@@ -1,8 +1,10 @@
-package com.szan.registry.Block;
+package com.szan.registry.block;
 
 import com.szan.SpecterCraft;
+//import com.szan.block.entity.BrickFurnaceEntity_old;
 import com.szan.block.entity.BrickFurnaceEntity;
 import com.szan.block. entity.WetClayBlockEntity;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -26,8 +28,8 @@ public class ModBlockEntities {
         );
         BRICK_FURNACE_ENTITY = Registry.register(
                 Registries.BLOCK_ENTITY_TYPE,
-                new Identifier(SpecterCraft.MOD_ID, "brick_furnace_entity"),
-                BlockEntityType.Builder.create(BrickFurnaceEntity::new, ModBlocks.BRICK_FURNACE).build(null)
+                new Identifier("spectercraft", "brick_furnace"),
+                FabricBlockEntityTypeBuilder.create(BrickFurnaceEntity::new, ModBlocks.BRICK_FURNACE).build()
         );
     }
 }

@@ -1,11 +1,15 @@
-package com.szan.registry.Block;
+package com.szan.registry.block;
 
 import com.szan. SpecterCraft;
+//import com.szan.block.BrickFurnace_old;
 import com.szan.block.BrickFurnace;
 import com.szan.block.WetClayBlock;
+import com.szan.block.entity.BrickFurnaceEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block. FabricBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block. Blocks;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft. item.BlockItem;
 import net. minecraft.item.Item;
 import net.minecraft.registry.Registries;
@@ -28,8 +32,16 @@ public class ModBlocks {
             new Block(FabricBlockSettings.create()));
 
     public static final Block BRICK_FURNACE = registerBlock("brick_furnace",
-            new BrickFurnace(FabricBlockSettings.copyOf(Blocks.BRICKS)
+            new BrickFurnace(FabricBlockSettings.copyOf(Blocks.FURNACE)
+                    .strength(3.5f)
+                    .sounds(BlockSoundGroup.STONE)
             )
+    );
+
+    public static final BlockEntityType<BrickFurnaceEntity> BRICK_FURNACE_ENTITY = Registry.register(
+            Registries.BLOCK_ENTITY_TYPE,
+            new Identifier("spectercraft", "brick_furnace"),
+            FabricBlockEntityTypeBuilder.create(BrickFurnaceEntity::new, BRICK_FURNACE).build()
     );
 
     private static Block registerBlock(String name, Block block) {

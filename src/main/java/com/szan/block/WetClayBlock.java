@@ -1,7 +1,7 @@
 package com.szan.block;
 
 import com.szan.block.entity.WetClayBlockEntity;
-import com.szan.registry.Block.ModBlockEntities;
+import com.szan.registry.block.ModBlockEntities;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
