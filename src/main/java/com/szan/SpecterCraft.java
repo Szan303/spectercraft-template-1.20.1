@@ -4,7 +4,6 @@ import com.szan.registry.block.ModBlockEntities;
 import com.szan.registry.block.ModBlocks;
 import com.szan.registry.item.ModItemGroups;
 import com.szan.registry.item.ModItems;
-import com.szan.registry.recipe.ModRecipeSerializers;
 import com.szan.registry.recipe.ModRecipeTypes;
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
@@ -21,8 +20,7 @@ public class SpecterCraft implements ModInitializer {
         LOGGER.info("============================================");
 
         // Registry (kolejność WAŻNA!)
-        ModRecipeTypes.BRICK_SMELTING.toString(); // niech zostanie lub przenieś do init, byle wykonało się PRZED rejestracją przepisów!
-        ModRecipeSerializers.register();        // <-- Musi być tutaj!
+        ModRecipeTypes.BRICK_SMELTING.toString(); // niech zostanie lub przenieś do init, byle wykonało się PRZED rejestracją przepisów!// <-- Musi być tutaj!
         ModBlocks.register();
         ModItems.register();
         ModBlockEntities.register();

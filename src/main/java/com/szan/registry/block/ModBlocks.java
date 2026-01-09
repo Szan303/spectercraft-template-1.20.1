@@ -38,11 +38,11 @@ public class ModBlocks {
             )
     );
 
-    public static final BlockEntityType<BrickFurnaceEntity> BRICK_FURNACE_ENTITY = Registry.register(
-            Registries.BLOCK_ENTITY_TYPE,
-            new Identifier("spectercraft", "brick_furnace"),
-            FabricBlockEntityTypeBuilder.create(BrickFurnaceEntity::new, BRICK_FURNACE).build()
-    );
+//    public static final BlockEntityType<BrickFurnaceEntity> BRICK_FURNACE_ENTITY = Registry.register(
+//            Registries.BLOCK_ENTITY_TYPE,
+//            new Identifier("spectercraft", "brick_furnace"),
+//            FabricBlockEntityTypeBuilder.create(BrickFurnaceEntity::new, BRICK_FURNACE).build()
+//    );
 
     private static Block registerBlock(String name, Block block) {
         registerBlockItem(name, block);
