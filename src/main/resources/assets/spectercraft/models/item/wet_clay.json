@@ -1,3 +1,6 @@
 {
-  "parent": "spectercraft:block/wet_clay_0"
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "spectercraft:block/txt_for_bars"
+  }
 }

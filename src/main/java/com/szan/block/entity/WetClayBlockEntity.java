@@ -12,7 +12,7 @@ import net.minecraft.world.World;
  * BlockEntity odpowiedzialny za zwiększanie drying stage co pewien czas.
  */
 public class WetClayBlockEntity extends BlockEntity {
-    private static final int STAGE_TICKS = 100; // ticks między kolejnymi stage (np. 100 ~ 5s)
+    private static final int STAGE_TICKS = (100 * 12) * 20; // ticks między kolejnymi stage (np. 100 ~ 5s)
     private int tickCounter = 0;
 
     public WetClayBlockEntity(BlockPos pos, BlockState state) {
@@ -37,5 +37,14 @@ public class WetClayBlockEntity extends BlockEntity {
             world.setBlockState(pos, nextState, 3);
             this.markDirty();
         }
+    }
+    public int getTicksToNextStage() {
+        return STAGE_TICKS - tickCounter;
+    }
+    public int getCurrentTicks() {
+        return tickCounter;
+    }
+    public int getStageTicks() {
+        return STAGE_TICKS;
     }
 }

@@ -28,10 +28,9 @@ public class ModBlocks {
             new Block(FabricBlockSettings.create()));
 
     public static final Block BRICK_FURNACE = registerBlock("brick_furnace",
-            new BrickFurnace(FabricBlockSettings.copyOf(Blocks.FURNACE)
+            new BrickFurnace(FabricBlockSettings.copyOf(Blocks.BRICKS)
             )
     );
-    // DODAJ PRAWIDŁOWO BLOCK
 
     private static Block registerBlock(String name, Block block) {
         registerBlockItem(name, block);

@@ -1,7 +1,7 @@
 {
   "parent": "block/furnace",
   "textures": {
-    "front": "spectercraft:block/brick_furnace_front",
+    "front": "spectercraft:block/brick_furnace_front_lit",
     "side": "spectercraft:block/brick_furnace",
     "top": "spectercraft:block/brick_furnace"
   }

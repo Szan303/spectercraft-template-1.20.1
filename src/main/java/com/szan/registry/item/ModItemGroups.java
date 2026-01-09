@@ -23,6 +23,7 @@ public class ModItemGroups {
                     .icon(() -> new ItemStack(ModBlocks.WET_CLAY))
                     .entries((displayContext, entries) -> {
                         entries.add(ModBlocks.WET_CLAY);
+                        entries.add(ModBlocks.BRICK_FURNACE);
                     })
                     .build()
     );

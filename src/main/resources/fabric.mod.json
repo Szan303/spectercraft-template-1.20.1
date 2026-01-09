@@ -24,6 +24,9 @@
         "client": [
           "com.szan.SpecterCraftClient"
         ],
+        "jade": [
+          "com.szan.jade.SpecterCraftJadePlugin"
+        ],
 		"fabric-datagen": [
 			"com.szan.SpecterCraftDataGenerator"
 		]

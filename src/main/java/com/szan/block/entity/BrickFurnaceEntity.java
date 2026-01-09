@@ -1,17 +1,19 @@
+// BrickFurnaceEntity.java
 package com.szan.block.entity;
 
+import com.szan.block.BrickFurnace;
 import com.szan.registry.Block.ModBlockEntities;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.recipe.RecipeType;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import com.szan.registry.Block.ModBlockEntities;
 
 public class BrickFurnaceEntity extends BlockEntity {
     private ItemStack input = ItemStack.EMPTY;
@@ -26,8 +28,8 @@ public class BrickFurnaceEntity extends BlockEntity {
     public ActionResult onUse(PlayerEntity player, Hand hand) {
         ItemStack held = player.getStackInHand(hand);
 
-        // Dodaj input jeśli pusty i to "przepalalny" item (tu uprość, później rozwiń)
-        if (input.isEmpty() && !held.isEmpty() && canSmelt(held)) {
+        // Dodaj input jeśli pusty i to "przepalalny" item
+        if (input.isEmpty() && !held.isEmpty() && canSmelt(getWorld(), held)) {
             input = held.split(1);
             markDirty();
             return ActionResult.SUCCESS;
@@ -35,12 +37,12 @@ public class BrickFurnaceEntity extends BlockEntity {
         // Dodaj paliwo jeśli jest i masz miejsce
         if (isFuel(held) && fuel < 1200) {
             held.decrement(1);
-            fuel += 200; // coal etc
+            fuel += getFuelTime(held); // uniwersalne pobieranie czasu spalania
             markDirty();
             return ActionResult.SUCCESS;
         }
         // Odbiór gotowego produktu
-        if (output != ItemStack.EMPTY && !output.isEmpty()) {
+        if (!output.isEmpty()) {
             player.giveItemStack(output.copy());
             output = ItemStack.EMPTY;
             markDirty();
@@ -49,34 +51,49 @@ public class BrickFurnaceEntity extends BlockEntity {
         return ActionResult.PASS;
     }
 
-    // Tick — wywołuj z Ticker
+    // Wywoływane przez ticker w registration
     public static void tick(World world, BlockPos pos, BlockState state, BrickFurnaceEntity entity) {
-        if (!entity.input.isEmpty() && entity.fuel > 0) {
+        if (!entity.input.isEmpty() && entity.fuel > 0 && canSmelt(world, entity.input)) {
+            world.setBlockState(pos, state.with(BrickFurnace.LIT, true), 3);
             entity.burnTime++;
             entity.fuel--;
-            if (entity.burnTime >= 200) { // czas przepalania
-                entity.output = new ItemStack(getSmeltingResult(entity.input).getItem());
+            if (entity.burnTime >= 200) { // czas przepalania, dopasuj do potrzeb
+                entity.output = getSmeltingResult(world, entity.input);
                 entity.input = ItemStack.EMPTY;
                 entity.burnTime = 0;
                 entity.markDirty();
             }
+        } else {
+            world.setBlockState(pos, state.with(BrickFurnace.LIT, false), 3);
         }
     }
 
-    private static boolean canSmelt(ItemStack stack) {
-        // Możesz sprawdzić Recipes tu! (skrócone)
-        return !stack.isEmpty(); // TODO: zamień na sprawdzanie "czy item jest przepalalny"
+    // SPRAWDZANIE: czy można przepalić ten item (world potrzebny do recipes!)
+    private static boolean canSmelt(World world, ItemStack stack) {
+        if (stack.isEmpty() || world == null) return false;
+        SimpleInventory inv = new SimpleInventory(stack.copy());
+        return world.getRecipeManager().getFirstMatch(RecipeType.SMELTING, inv, world).isPresent();
     }
 
+    // Wynik przepalania (uwaga: world może być null, w teorii wyłącznie na serwerze)
+    private static ItemStack getSmeltingResult(World world, ItemStack stack) {
+        if (world == null) return ItemStack.EMPTY;
+        SimpleInventory inv = new SimpleInventory(stack.copy());
+        return world.getRecipeManager()
+                .getFirstMatch(RecipeType.SMELTING, inv, world)
+                .map(recipe -> recipe.craft(inv, world.getRegistryManager()))
+                .orElse(ItemStack.EMPTY);
+    }
+
+    // Sprawdzenie czy stack to fuel - pobiera czas spalania, jak vanilla furnace
     private static boolean isFuel(ItemStack stack) {
-        return stack.getItem() == Items.COAL || stack.getItem() == Items.CHARCOAL;
+        return getFuelTime(stack) > 0;
     }
 
-    private static ItemStack getSmeltingResult(ItemStack input) {
-        // TODO: użyj RecipeManager, teraz testowo bread dla mięsa
-        if (input.getItem() == Items.BEEF) return new ItemStack(Items.COOKED_BEEF);
-        if (input.getItem() == Items.PORKCHOP) return new ItemStack(Items.COOKED_PORKCHOP);
-        return ItemStack.EMPTY;
+    // Vanilla fuel time map
+    private static int getFuelTime(ItemStack stack) {
+        Integer i = net.minecraft.block.entity.AbstractFurnaceBlockEntity.createFuelTimeMap().get(stack.getItem());
+        return i == null ? 0 : i;
     }
 
     @Override
@@ -95,4 +112,20 @@ public class BrickFurnaceEntity extends BlockEntity {
         input = tag.contains("input") ? ItemStack.fromNbt(tag.getCompound("input")) : ItemStack.EMPTY;
         output = tag.contains("output") ? ItemStack.fromNbt(tag.getCompound("output")) : ItemStack.EMPTY;
     }
+    public int getFuel() {
+        return fuel;
+    }
+
+    public int getBurnTime() {
+        return burnTime;
+    }
+
+    public ItemStack getInput() {
+        return input;
+    }
+
+    public ItemStack getOutput() {
+        return output;
+    }
+
 }
