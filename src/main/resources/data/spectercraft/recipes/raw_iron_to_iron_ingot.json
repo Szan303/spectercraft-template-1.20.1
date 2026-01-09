@@ -1,7 +1,8 @@
 {
   "type": "spectercraft:brick_smelting",
+  "category": "SMELTING",
   "ingredient": { "item": "minecraft:raw_iron" },
   "result": "minecraft:iron_ingot",
   "experience": 0.7,
-  "cookingtime": 100
+  "cookingtime": 1000
 }

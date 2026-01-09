@@ -1,4 +1,4 @@
-package com.szan.registry;
+package com.szan.registry.recipe;
 
 import net.minecraft.util.Identifier;
 
